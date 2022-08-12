@@ -1,9 +1,7 @@
-import * as jestDOM from '@testing-library/jest-dom'
+import '@testing-library/jest-dom/extend-expect'
 import React from 'react'
 import {render, fireEvent} from '@testing-library/react'
 import Calculator from '../calculator'
-
-expect.extend(jestDOM)
 
 test('the clear button switches from AC to C when there is an entry', () => {
   const {getByText} = render(<Calculator />)
