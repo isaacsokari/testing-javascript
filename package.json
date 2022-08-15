@@ -45,6 +45,7 @@
     "jest": "^24.9.0",
     "jest-runner-eslint": "^0.9.0",
     "jest-watch-select-projects": "^2.0.0",
+    "jest-watch-typeahead": "^0.4.2",
     "prettier": "^1.19.1",
     "prop-types": "^15.7.2",
     "serve": "^11.2.0",
