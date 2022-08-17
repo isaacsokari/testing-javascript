@@ -1,0 +1,82 @@
+{
+  "name": "testing-node-apps",
+  "version": "1.0.0",
+  "description": "The material for learning Testing Node.js Apps",
+  "keywords": [],
+  "homepage": "https://github.com/kentcdodds/testing-node-apps",
+  "license": "GPL-3.0-only",
+  "engines": {
+    "node": ">=12",
+    "npm": ">=6"
+  },
+  "dependencies": {
+    "@babel/core": "^7.12.9",
+    "@babel/preset-env": "^7.12.7",
+    "axios": "^0.21.0",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "cpy": "^8.1.1",
+    "express": "^4.17.1",
+    "express-async-errors": "^3.1.1",
+    "express-jwt": "^6.0.0",
+    "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.20",
+    "loglevel": "^1.7.1",
+    "nodemon": "^2.0.6",
+    "passport": "^0.4.1",
+    "passport-local": "^1.0.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.12.8",
+    "@babel/register": "^7.12.1",
+    "cross-spawn": "^7.0.3",
+    "eslint": "^7.14.0",
+    "eslint-config-kentcdodds": "^17.3.0",
+    "eslint-import-resolver-jest": "^3.0.0",
+    "faker": "^5.1.0",
+    "husky": "^4.3.0",
+    "inquirer": "^7.3.3",
+    "is-ci": "^2.0.0",
+    "is-ci-cli": "^2.1.2",
+    "jest": "^26.6.3",
+    "jest-in-case": "^1.0.2",
+    "jest-watch-select-projects": "^2.0.0",
+    "jest-watch-typeahead": "^0.6.1",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.2.1",
+    "replace-in-file": "^6.1.0"
+  },
+  "scripts": {
+    "build": "babel --delete-dir-on-start --out-dir dist --copy-files --ignore \"**/__tests__/**,**/__mocks__/**\" --no-copy-ignored src",
+    "start": "node ./scripts/codesandbox-page.js",
+    "test": "is-ci \"test:final:coverage\" \"test:exercise:watch\"",
+    "test:exercise": "jest --config test/jest.config.exercises.js",
+    "test:exercise:watch": "npm run test:exercise -- --watchAll",
+    "test:exercise:coverage": "npm run test:exercise -- --coverage",
+    "test:final": "jest --config test/jest.config.final.js",
+    "test:final:watch": "npm run test:final -- --watchAll",
+    "test:final:watch:debug": "node --inspect-brk ./node_modules/jest/bin/jest.js --config test/jest.config.final.js --watchAll --runInBand",
+    "test:final:coverage": "npm run test:final -- --coverage",
+    "format": "prettier --write \"**/*.+(js|json|css|md|mdx|html)\"",
+    "lint": "eslint .",
+    "setup": "node setup",
+    "validate": "npm-run-all --parallel test:final:coverage lint"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run validate"
+    }
+  },
+  "babel": {
+    "presets": [
+      [
+        "@babel/preset-env",
+        {
+          "targets": {
+            "node": "current"
+          }
+        }
+      ]
+    ]
+  }
+}
