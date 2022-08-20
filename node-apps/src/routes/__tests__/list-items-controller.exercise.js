@@ -251,4 +251,47 @@ describe(`createListItem`, () => {
     expect(res.json).toBeCalledWith({listItem: {...listItem, book}})
   })
 
+  test(`returns 400 when bookId isn't provided`, async () => {
+    const req = buildReq()
+    const res = buildRes()
+
+    await listItemsController.createListItem(req, res)
+
+    expect(res.status).toBeCalledTimes(1)
+    expect(res.status).toBeCalledWith(400)
+
+    expect(res.json).toBeCalledTimes(1)
+    expect(res.json.mock.calls[0]).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "message": "No bookId provided",
+        },
+      ]
+    `)
+  })
+
+  test(`returns 400 when book exists`, async () => {
+    const user = buildUser({id: 'USER_ID'})
+    const book = buildBook({id: 'BOOK_ID'})
+
+    const listItem = buildListItem({ownerId: user.id, bookId: book.id})
+
+    listItemsDB.query.mockResolvedValueOnce([listItem])
+    listItemsDB.create.mockResolvedValueOnce(listItem)
+    booksDB.readById.mockResolvedValueOnce(book)
+
+    const req = buildReq({user, body: {bookId: book.id}})
+    const res = buildRes()
+
+    await listItemsController.createListItem(req, res)
+
+    expect(res.json).toBeCalledTimes(1)
+    expect(res.json.mock.calls[0]).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "message": "User USER_ID already has a list item for the book with the ID BOOK_ID",
+        },
+      ]
+    `)
+  })
 })
