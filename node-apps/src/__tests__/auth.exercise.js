@@ -6,10 +6,16 @@ import * as generate from 'utils/generate'
 import {getData, handleRequestFailure} from 'utils/async'
 import startServer from '../start'
 
-let server
+let api, server
 
 beforeAll(async () => {
-  server = await startServer({port: 8000})
+  server = await startServer()
+
+  const baseURL = `http://localhost:${server.address().port}/api`
+
+  // creating an axios client
+  api = axios.create({baseURL})
+  api.interceptors.response.use(getData, handleRequestFailure)
 })
 
 afterAll(() => server.close())
@@ -20,11 +26,6 @@ beforeEach(() => resetDb())
 test('auth flow', async () => {
   const {username, password} = generate.loginForm()
 
-  const baseURL = 'http://localhost:8000/api'
-  // creating an axios client
-  const api = axios.create({baseURL})
-  api.interceptors.response.use(getData, handleRequestFailure)
-
   // 🐨 use axios.post to post the username and password to the registration endpoint
   const registerData = await api.post('auth/register', {username, password})
 
@@ -32,7 +33,7 @@ test('auth flow', async () => {
   expect(registerData.user).toEqual({
     token: expect.any(String),
     id: expect.any(String),
-    username
+    username,
   })
 
   // login
@@ -42,8 +43,8 @@ test('auth flow', async () => {
   // authenticated request
   const requestData = await api.get('auth/me', {
     headers: {
-      Authorization: `Bearer ${loginData.user.token}`
-    }
+      Authorization: `Bearer ${loginData.user.token}`,
+    },
   })
 
   expect(requestData.user).toEqual(loginData.user)
