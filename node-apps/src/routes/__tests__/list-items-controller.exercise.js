@@ -157,40 +157,74 @@ describe('setListItem', () => {
   })
 })
 
-  test(`getListItems returns a user's list items`, async () => { 
-    const user = buildUser()
+test(`getListItems returns a user's list items`, async () => {
+  const user = buildUser()
 
-    const books = [ buildBook(), buildBook() ]
-    const userListItems = [
-      buildListItem({
-        ownerId: user.id,
-        bookId: books[0].id,
-      }),
-      buildListItem({
-        ownerId: user.id,
-        bookId: books[1].id,
-      }),
-    ]
+  const books = [buildBook(), buildBook()]
+  const userListItems = [
+    buildListItem({
+      ownerId: user.id,
+      bookId: books[0].id,
+    }),
+    buildListItem({
+      ownerId: user.id,
+      bookId: books[1].id,
+    }),
+  ]
 
-   booksDB.readManyById.mockResolvedValueOnce(books)
-   listItemsDB.query.mockResolvedValueOnce(userListItems)
+  booksDB.readManyById.mockResolvedValueOnce(books)
+  listItemsDB.query.mockResolvedValueOnce(userListItems)
 
-    const req = buildReq({ user})
-    const res = buildRes()
+  const req = buildReq({user})
+  const res = buildRes()
 
-   await listItemsController.getListItems(req, res)
+  await listItemsController.getListItems(req, res)
 
-   expect(listItemsDB.query).toHaveBeenCalledTimes(1)
-   expect(listItemsDB.query).toHaveBeenCalledWith({ownerId: user.id})
+  expect(listItemsDB.query).toHaveBeenCalledTimes(1)
+  expect(listItemsDB.query).toHaveBeenCalledWith({ownerId: user.id})
 
-   expect(booksDB.readManyById).toHaveBeenCalledTimes(1)
-   expect(booksDB.readManyById).toHaveBeenCalledWith([ books[0].id, books[1].id ])
+  expect(booksDB.readManyById).toHaveBeenCalledTimes(1)
+  expect(booksDB.readManyById).toHaveBeenCalledWith([books[0].id, books[1].id])
 
-   expect(res.json).toHaveBeenCalledTimes(1)
-   expect(res.json).toHaveBeenCalledWith({
-     listItems: [
-       {...userListItems[0], book: books[0]},
-       {...userListItems[1], book: books[1]},
-     ],
-   })
-   })
+  expect(res.json).toHaveBeenCalledTimes(1)
+  expect(res.json).toHaveBeenCalledWith({
+    listItems: [
+      {...userListItems[0], book: books[0]},
+      {...userListItems[1], book: books[1]},
+    ],
+  })
+})
+
+test('getListItem returns a specific listItem', async () => {
+  const user = buildUser()
+
+  const books = [buildBook(), buildBook()]
+  const userListItems = [
+    buildListItem({
+      ownerId: user.id,
+      bookId: books[0].id,
+    }),
+    buildListItem({
+      ownerId: user.id,
+      bookId: books[1].id,
+    }),
+  ]
+
+  const listItem = userListItems[0]
+  const book = books[0]
+
+  booksDB.readById.mockResolvedValueOnce(book)
+
+  const req = buildReq({listItem})
+  const res = buildRes()
+
+  await listItemsController.getListItem(req, res)
+
+  expect(booksDB.readById).toHaveBeenCalledTimes(1)
+  expect(booksDB.readById).toHaveBeenCalledWith(book.id)
+
+  expect(res.json).toHaveBeenCalledTimes(1)
+  expect(res.json).toHaveBeenCalledWith({
+    listItem: {...listItem, book},
+  })
+})
