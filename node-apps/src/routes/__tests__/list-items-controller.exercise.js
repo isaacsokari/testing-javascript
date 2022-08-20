@@ -48,3 +48,25 @@ test('getListItem returns the req.listItem', async () => {
     listItem: {...listItem, book},
   })
 })
+
+test('createListItem returns a 400 error if no bookId was passed', async () => {
+  const req = buildReq()
+  const res = buildRes()
+
+  // 🐨 make a call to createListItem with the req and res (`await` the result)
+  await listItemsController.createListItem(req, res)
+
+  // 🐨 assert that the res.status
+  expect(res.status).toHaveBeenCalledTimes(1)
+  expect(res.status).toHaveBeenCalledWith(400)
+
+  // 🐨 assert that res.json was called correctly
+  expect(res.json).toHaveBeenCalledTimes(1)
+  expect(res.json.mock.calls[0]).toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "message": "No bookId provided",
+      },
+    ]
+  `)
+})
