@@ -66,9 +66,6 @@ test('listItem CRUD', async () => {
   // expect an error if we try to fetch the same resource
   const error = await authAPI.get(listItemIdUrl).catch(resolve)
   expect(error.status).toBe(404)
-  expect(error.data).toEqual({
-    message: `No list item was found with the id of ${listItemId}`,
-  })
 
   // because the ID is generated, we need to replace it in the error message
   // so our snapshot remains consistent
