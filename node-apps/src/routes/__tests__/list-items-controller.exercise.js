@@ -228,3 +228,27 @@ test('getListItem returns a specific listItem', async () => {
     listItem: {...listItem, book},
   })
 })
+
+describe(`createListItem`, () => {
+  test('creates and returns a listItem', async () => {
+    const user = buildUser()
+    const book = buildBook()
+
+    const listItem = buildListItem({ownerId: user.id, bookId: book.id})
+
+    listItemsDB.query.mockResolvedValueOnce([
+      /* nothing */
+    ])
+    listItemsDB.create.mockResolvedValueOnce(listItem)
+    booksDB.readById.mockResolvedValueOnce(book)
+
+    const req = buildReq({user, body: {bookId: book.id}})
+    const res = buildRes()
+
+    await listItemsController.createListItem(req, res)
+
+    expect(res.json).toBeCalledTimes(1)
+    expect(res.json).toBeCalledWith({listItem: {...listItem, book}})
+  })
+
+})
