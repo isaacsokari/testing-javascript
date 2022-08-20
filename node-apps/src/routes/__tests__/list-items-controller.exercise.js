@@ -7,6 +7,7 @@ import {
   buildBook,
   buildListItem,
   buildNext,
+  notes,
 } from 'utils/generate'
 
 // 🐨 getListItem calls `expandBookData` which calls `booksDB.readById`
@@ -21,11 +22,12 @@ jest.mock('../../db/books.js')
 jest.mock('../../db/list-items.js')
 
 beforeEach(() => {
-  // this clears return values too
-  // jest.resetAllMocks()
+  // this only clears all information stored in the mockFn.mock.calls,
+  // mockFn.mock.instances, mockFn.mock.contexts and mockFn.mock.results arrays
+  // jest.clearAllMocks()
 
-  // this only clears call history
-  jest.clearAllMocks()
+  // this clears return values and implementations
+  jest.resetAllMocks()
 })
 
 test('getListItem returns the req.listItem', async () => {
@@ -290,6 +292,64 @@ describe(`createListItem`, () => {
       Array [
         Object {
           "message": "User USER_ID already has a list item for the book with the ID BOOK_ID",
+        },
+      ]
+    `)
+  })
+})
+
+describe(`updateListItem`, () => {
+  test('updates and returns a listItem', async () => {
+    const user = buildUser()
+    const book = buildBook()
+
+    const createdListItem = buildListItem({ownerId: user.id, bookId: book.id})
+    const updates = {notes: notes()}
+
+    const updatedListItem = {...createdListItem, ...updates}
+
+    listItemsDB.update.mockResolvedValueOnce(updatedListItem)
+    booksDB.readById.mockResolvedValueOnce(book)
+
+    const req = buildReq({
+      user,
+      listItem: createdListItem,
+      body: updates,
+    })
+    const res = buildRes()
+
+    await listItemsController.updateListItem(req, res)
+
+    expect(res.json).toBeCalledTimes(1)
+    expect(res.json).toBeCalledWith({listItem: {...updatedListItem, book}})
+  })
+
+  test(`returns 400 when book doesn't exist`, async () => {
+    const user = buildUser()
+    const book = buildBook()
+
+    const createdListItem = buildListItem({ownerId: user.id, bookId: book.id})
+    const updates = {notes: notes()}
+
+    listItemsDB.update.mockResolvedValueOnce({})
+
+    const req = buildReq({
+      user,
+      listItem: createdListItem,
+      body: updates,
+    })
+
+    const res = buildRes()
+
+    await listItemsController.updateListItem(req, res)
+
+    expect(res.json).toBeCalledTimes(1)
+    expect(res.json.mock.calls[0]).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "listItem": Object {
+            "book": undefined,
+          },
         },
       ]
     `)
